@@ -34,3 +34,7 @@ Route::group([ 'middleware' => 'api'], function (){
 Route::get('test', function (){
    return 'test api';
 });
+
+Route::get('users', function (){
+   return \App\Models\User::query()->get();
+});
