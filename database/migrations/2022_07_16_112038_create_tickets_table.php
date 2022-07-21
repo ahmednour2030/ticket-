@@ -18,7 +18,8 @@ class CreateTicketsTable extends Migration
             $table->string('title');
             $table->string('description');
             $table->string('price');
-            $table->integer('is_vip')->default(0);
+            $table->integer('is_vip')
+                ->default(0);
 
             $table->timestamps();
         });
