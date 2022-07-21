@@ -11,6 +11,8 @@ class Ticket extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia;
 
+    protected $table = 'tickets';
+
     /**
      * @var string[]
      */
