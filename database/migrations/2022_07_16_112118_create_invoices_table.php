@@ -16,15 +16,16 @@ class CreateInvoicesTable extends Migration
         Schema::create('invoices', function (Blueprint $table) {
             $table->id();
             $table->string('uuid')->unique();
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('name');
+//            $table->string('last_name');
             $table->string('email')->unique();
-            $table->string('city');
+//            $table->string('city');
             $table->string('address');
             $table->string('phone');
             $table->string('count');
             $table->float('price');
             $table->float('total_price');
+            $table->string('strip_id');
 
             $table->foreignId('ticket_id')
                 ->constrained()

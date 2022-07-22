@@ -44,18 +44,23 @@ class InvoiceController extends Controller
     /**
      * @param Request $request
      * @return Application|ResponseFactory|Response
+     * @throws Stripe\Exception\ApiErrorException
      */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'ticket_id' => 'required|exists:tickets,id',
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
+            'name' => 'required|string',
+//            'last_name' => 'required|string',
             'email' => 'required|email|unique:invoices,email',
-            'city' => 'required|string',
+//            'city' => 'required|string',
             'address' => 'required|string',
             'phone' => 'required|string',
             'count' => 'required|string',
+            'card_number' => 'required',
+            'card_exp_month' => 'required',
+            'card_exp_year' => 'required',
+            'card_cvc' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -68,37 +73,38 @@ class InvoiceController extends Controller
 
         $totalPrice = $request->post('count') * $price;
 
-        $invoice = $this->invoiceModel->create([
-            'uuid' => Str::uuid()->toString(),
-            'ticket_id' => $request->post('ticket_id'),
-            'first_name' => $request->post('first_name'),
-            'last_name' => $request->post('last_name'),
-            'email' => $request->post('email'),
-            'city' => $request->post('city'),
-            'address' => $request->post('address'),
-            'phone' => $request->post('phone'),
-            'count' => $request->post('count'),
-            'price' => $price,
-            'total_price' => $totalPrice,
-        ]);
-
         $stripe = new \Stripe\StripeClient(env('STRIPE_SECRET'));
 
         $data = $stripe->tokens->create([
             'card' => [
-                'number' => '4242424242424242',
-                'exp_month' => 7,
-                'exp_year' => 2023,
-                'cvc' => '314',
+                'number' => $request->post('card_number'),
+                'exp_month' => $request->post('card_exp_month'),
+                'exp_year' => $request->post('card_exp_year'),
+                'cvc' => $request->post('card_cvc'),
             ],
         ]);
         $stripeToken = $data['id'];
         Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
-        Stripe\Charge::create ([
+        $stripe = Stripe\Charge::create ([
             "amount" => 100 * 100,
             "currency" => "usd",
             "source" => $stripeToken,
             "description" => "Test payment from itsolutionstuff.com."
+        ]);
+
+        $invoice = $this->invoiceModel->create([
+            'uuid' => Str::uuid()->toString(),
+            'ticket_id' => $request->post('ticket_id'),
+            'name' => $request->post('name'),
+//            'last_name' => $request->post('last_name'),
+            'email' => $request->post('email'),
+//            'city' => $request->post('city'),
+            'address' => $request->post('address'),
+            'phone' => $request->post('phone'),
+            'count' => $request->post('count'),
+            'price' => $price,
+            'strip_id' => $stripe['id'],
+            'total_price' => $totalPrice,
         ]);
 
        // Mail::to($request->post('email'))->send(new InvoiceMail());

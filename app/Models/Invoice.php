@@ -15,8 +15,7 @@ class Invoice extends Model
      */
     protected $fillable = [
         'uuid',
-        'first_name',
-        'last_name',
+        'name',
         'email',
         'city',
         'address',
@@ -25,6 +24,7 @@ class Invoice extends Model
         'price',
         'total_price',
         'ticket_id',
-        'entry_at'
+        'entry_at',
+        'strip_id'
     ];
 }
