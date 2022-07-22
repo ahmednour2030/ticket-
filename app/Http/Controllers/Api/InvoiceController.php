@@ -83,6 +83,7 @@ class InvoiceController extends Controller
                 'cvc' => $request->post('card_cvc'),
             ],
         ]);
+
         $stripeToken = $data['id'];
         Stripe\Stripe::setApiKey(env('STRIPE_SECRET'));
         $stripe = Stripe\Charge::create ([
@@ -107,7 +108,7 @@ class InvoiceController extends Controller
             'total_price' => $totalPrice,
         ]);
 
-       // Mail::to($request->post('email'))->send(new InvoiceMail());
+        Mail::to($request->post('email'))->send(new InvoiceMail());
 
         return $this->apiResponse('successfully', $invoice);
     }
